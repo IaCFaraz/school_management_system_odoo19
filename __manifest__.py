@@ -36,6 +36,8 @@ A complete school management solution including:
     'data': [
         'security/school_security.xml',
         'security/ir.model.access.csv',
+        'security/school_company_rules.xml',
+        'security/school_installment_security.xml',
         'data/school_sequence.xml',
         'views/school_academic_year_views.xml',
         'views/school_class_views.xml',

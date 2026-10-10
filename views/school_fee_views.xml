@@ -81,8 +81,14 @@
                     <group>
                         <group>
                             <field name="student_id"/>
+                            <field name="installment_id"
+                                   domain="[('student_id', '=', student_id)]"
+                                   readonly="state == 'paid'"/>
                             <field name="fee_structure_id"/>
                             <field name="currency_id" invisible="1"/>
+                            <field name="fee_amount"/>
+                            <field name="discount"/>
+                            <field name="net_fee"/>
                             <field name="amount"/>
                         </group>
                         <group>
@@ -107,7 +113,11 @@
             <list string="Fee Payments">
                 <field name="name"/>
                 <field name="student_id"/>
+                <field name="installment_id"/>
                 <field name="fee_structure_id"/>
+                <field name="fee_amount" optional="show"/>
+                <field name="discount" optional="show"/>
+                <field name="net_fee" optional="show"/>
                 <field name="amount"/>
                 <field name="currency_id" optional="hide"/>
                 <field name="payment_date"/>

@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="rule_school_academic_year_company" model="ir.rule">
+        <field name="name">School Academic Year: multi-company</field>
+        <field name="model_id" ref="model_school_academic_year"/>
+        <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+    </record>
+
+    <record id="rule_school_attendance_company" model="ir.rule">
+        <field name="name">School Attendance: multi-company</field>
+        <field name="model_id" ref="model_school_attendance"/>
+        <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+    </record>
+
+    <record id="rule_school_class_company" model="ir.rule">
+        <field name="name">School Class: multi-company</field>
+        <field name="model_id" ref="model_school_class"/>
+        <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+    </record>
+
+    <record id="rule_school_class_room_company" model="ir.rule">
+        <field name="name">School Class Room: multi-company</field>
+        <field name="model_id" ref="model_school_class_room"/>
+        <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+    </record>
+
+    <record id="rule_school_exam_company" model="ir.rule">
+        <field name="name">School Exam: multi-company</field>
+        <field name="model_id" ref="model_school_exam"/>
+        <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+    </record>
+
+    <record id="rule_school_exam_result_company" model="ir.rule">
+        <field name="name">School Exam Result: multi-company</field>
+        <field name="model_id" ref="model_school_exam_result"/>
+        <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+    </record>
+
+    <record id="rule_school_fee_payment_company" model="ir.rule">
+        <field name="name">School Fee Payment: multi-company</field>
+        <field name="model_id" ref="model_school_fee_payment"/>
+        <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+    </record>
+
+    <record id="rule_school_fee_structure_company" model="ir.rule">
+        <field name="name">School Fee Structure: multi-company</field>
+        <field name="model_id" ref="model_school_fee_structure"/>
+        <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+    </record>
+
+    <record id="rule_school_hostel_company" model="ir.rule">
+        <field name="name">School Hostel: multi-company</field>
+        <field name="model_id" ref="model_school_hostel"/>
+        <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+    </record>
+
+    <record id="rule_school_hostel_room_company" model="ir.rule">
+        <field name="name">School Hostel Room: multi-company</field>
+        <field name="model_id" ref="model_school_hostel_room"/>
+        <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+    </record>
+
+    <record id="rule_school_hostel_allocation_company" model="ir.rule">
+        <field name="name">School Hostel Allocation: multi-company</field>
+        <field name="model_id" ref="model_school_hostel_allocation"/>
+        <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+    </record>
+
+    <record id="rule_school_student_company" model="ir.rule">
+        <field name="name">School Student: multi-company</field>
+        <field name="model_id" ref="model_school_student"/>
+        <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+    </record>
+
+    <record id="rule_school_subject_company" model="ir.rule">
+        <field name="name">School Subject: multi-company</field>
+        <field name="model_id" ref="model_school_subject"/>
+        <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+    </record>
+
+    <record id="rule_school_teacher_company" model="ir.rule">
+        <field name="name">School Teacher: multi-company</field>
+        <field name="model_id" ref="model_school_teacher"/>
+        <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+    </record>
+
+    <record id="rule_school_transport_vehicle_company" model="ir.rule">
+        <field name="name">School Transport Vehicle: multi-company</field>
+        <field name="model_id" ref="model_school_transport_vehicle"/>
+        <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+    </record>
+
+    <record id="rule_school_transport_route_company" model="ir.rule">
+        <field name="name">School Transport Route: multi-company</field>
+        <field name="model_id" ref="model_school_transport_route"/>
+        <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+    </record>
+</odoo>

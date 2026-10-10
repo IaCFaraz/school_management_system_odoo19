@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 from odoo import api, fields, models, _
-from odoo.exceptions import UserError
+from odoo.exceptions import UserError, ValidationError
 from datetime import date
+from dateutil.relativedelta import relativedelta
 
 
 class SchoolStudent(models.Model):
@@ -65,6 +66,32 @@ class SchoolStudent(models.Model):
         string='Currency',
         default=lambda self: self.env.company.currency_id,
     )
+    class_fee = fields.Monetary(
+        string='Monthly Fee',
+        compute='_compute_class_fee',
+        currency_field='currency_id',
+        store=False,
+    )
+    special_discount = fields.Monetary(
+        string='Monthly Special Discount',
+        currency_field='currency_id',
+        tracking=True,
+    )
+    net_fee = fields.Monetary(
+        string='Monthly Net Fee',
+        compute='_compute_net_fee',
+        currency_field='currency_id',
+        store=False,
+    )
+    payment_plan = fields.Selection([
+        ('monthly', 'Monthly'),
+        ('quarterly', 'Quarterly (3 months)'),
+        ('half_yearly', 'Half-Yearly (6 months)'),
+        ('yearly', 'Yearly'),
+    ], string='Payment Plan', default='monthly', tracking=True)
+    installment_ids = fields.One2many(
+        'school.fee.installment', 'student_id', string='Installments',
+    )
     fee_paid = fields.Monetary(
         string='Total Fees Paid',
         compute='_compute_fees',
@@ -89,16 +116,49 @@ class SchoolStudent(models.Model):
             else:
                 record.age = 0
 
-    @api.depends('fee_payment_ids', 'fee_payment_ids.amount', 'fee_payment_ids.state')
+    @api.depends('class_id')
+    def _compute_class_fee(self):
+        Structure = self.env['school.fee.structure']
+        for record in self:
+            structure = Structure
+            if record.class_id:
+                structure = Structure.search([
+                    ('class_id', '=', record.class_id.id),
+                    ('fee_type', '=', 'tuition'),
+                ], limit=1)
+            record.class_fee = structure.amount if structure else 0.0
+
+    @api.depends('class_fee', 'special_discount')
+    def _compute_net_fee(self):
+        for record in self:
+            record.net_fee = (record.class_fee or 0.0) - (record.special_discount or 0.0)
+
+    @api.constrains('special_discount', 'class_id')
+    def _check_special_discount(self):
+        for record in self:
+            if record.special_discount < 0:
+                raise ValidationError(_("Special discount cannot be negative."))
+            if record.special_discount > record.class_fee:
+                raise ValidationError(_("Special discount cannot be greater than the class fee."))
+
+    @api.depends('fee_payment_ids', 'fee_payment_ids.amount', 'fee_payment_ids.state',
+                 'class_id', 'special_discount',
+                 'installment_ids.net_fee', 'installment_ids.state')
     def _compute_fees(self):
         for record in self:
             paid_payments = record.fee_payment_ids.filtered(lambda p: p.state == 'paid')
             record.fee_paid = sum(paid_payments.mapped('amount'))
-            all_structures = self.env['school.fee.structure'].search([
-                ('class_id', '=', record.class_id.id),
-            ])
-            total_due = sum(all_structures.mapped('amount'))
-            record.fee_due = max(0, total_due - record.fee_paid)
+            if record.installment_ids:
+                record.fee_due = sum(
+                    inst.net_fee for inst in record.installment_ids
+                    if inst.state != 'paid'
+                )
+            else:
+                all_structures = self.env['school.fee.structure'].search([
+                    ('class_id', '=', record.class_id.id),
+                ])
+                total_due = sum(all_structures.mapped('amount')) - (record.special_discount or 0.0)
+                record.fee_due = max(0, total_due - record.fee_paid)
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -134,6 +194,58 @@ class SchoolStudent(models.Model):
     def action_reset(self):
         for record in self:
             record.state = 'draft'
+
+    def action_generate_installments(self):
+        """Build the installments of the selected Payment Plan.
+
+        The class fee is a MONTHLY fee. A plan simply groups months:
+        monthly = 12 x 1 month, quarterly = 4 x 3, half-yearly = 2 x 6,
+        yearly = 1 x 12. Fee and special discount are multiplied by the
+        months each installment covers.
+        """
+        months_by_plan = {
+            'monthly': 1, 'quarterly': 3, 'half_yearly': 6, 'yearly': 12,
+        }
+        Installment = self.env['school.fee.installment'].sudo()
+        for record in self:
+            if not record.class_fee:
+                raise UserError(_(
+                    "No Tuition fee found for this student's class. Create a "
+                    "Tuition fee structure for the class first."
+                ))
+            if record.installment_ids.filtered(lambda i: i.state == 'paid'):
+                raise UserError(_(
+                    "Some installments are already paid, so the plan cannot "
+                    "be regenerated."
+                ))
+            step = months_by_plan[record.payment_plan]
+            start = (
+                record.academic_year_id.date_start
+                or record.admission_date
+                or fields.Date.today()
+            )
+            record.installment_ids.sudo().unlink()
+            vals_list = []
+            for index in range(12 // step):
+                period_start = start + relativedelta(months=index * step)
+                period_end = period_start + relativedelta(months=step - 1)
+                if step == 1:
+                    label = period_start.strftime('%b %Y')
+                else:
+                    label = '%s - %s' % (
+                        period_start.strftime('%b %Y'),
+                        period_end.strftime('%b %Y'),
+                    )
+                vals_list.append({
+                    'name': label,
+                    'student_id': record.id,
+                    'months': step,
+                    'due_date': period_start,
+                    'fee_amount': record.class_fee * step,
+                    'discount': (record.special_discount or 0.0) * step,
+                })
+            Installment.create(vals_list)
+        return True
 
     def action_view_exams(self):
         return {

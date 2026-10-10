@@ -95,15 +95,52 @@
                             </group>
                         </page>
                         <page string="Fees">
+                            <field name="currency_id" invisible="1"/>
                             <group>
-                                <field name="currency_id" invisible="1"/>
-                                <field name="fee_paid" readonly="1"/>
-                                <field name="fee_due" readonly="1"/>
+                                <group string="Monthly Fee">
+                                    <field name="class_fee" readonly="1"/>
+                                    <field name="special_discount"/>
+                                    <field name="net_fee" readonly="1"/>
+                                    <field name="payment_plan"/>
+                                </group>
+                                <group string="Payment Summary">
+                                    <field name="fee_paid" readonly="1"/>
+                                    <field name="fee_due" readonly="1"/>
+                                </group>
                             </group>
+                            <button name="action_generate_installments" type="object"
+                                    string="Generate Installments" class="btn-primary"
+                                    invisible="not id"/>
+                            <separator string="Installments"/>
+                            <field name="installment_ids" readonly="1">
+                                <list decoration-success="state == 'paid'"
+                                      decoration-danger="state == 'overdue'">
+                                    <field name="name"/>
+                                    <field name="due_date"/>
+                                    <field name="fee_amount"/>
+                                    <field name="discount"/>
+                                    <field name="net_fee"/>
+                                    <field name="currency_id" column_invisible="1"/>
+                                    <field name="payment_ref" string="Receipt"/>
+                                    <field name="paid_date"/>
+                                    <field name="state" widget="badge"
+                                           decoration-success="state == 'paid'"
+                                           decoration-info="state == 'unpaid'"
+                                           decoration-danger="state == 'overdue'"/>
+                                    <button name="action_pay" type="object"
+                                            string="Pay" icon="fa-money"
+                                            invisible="state == 'paid'"/>
+                                </list>
+                            </field>
+                            <separator string="Payments"/>
                             <field name="fee_payment_ids">
                                 <list editable="bottom">
                                     <field name="name" readonly="1"/>
+                                    <field name="installment_id" readonly="1"/>
                                     <field name="fee_structure_id"/>
+                                    <field name="fee_amount"/>
+                                    <field name="discount"/>
+                                    <field name="net_fee"/>
                                     <field name="amount"/>
                                     <field name="payment_date"/>
                                     <field name="payment_method"/>

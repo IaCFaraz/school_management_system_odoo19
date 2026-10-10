@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="access_school_fee_installment_user" model="ir.model.access">
+        <field name="name">school.fee.installment.user</field>
+        <field name="model_id" ref="model_school_fee_installment"/>
+        <field name="group_id" ref="group_school_user"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+    <record id="access_school_fee_installment_teacher" model="ir.model.access">
+        <field name="name">school.fee.installment.teacher</field>
+        <field name="model_id" ref="model_school_fee_installment"/>
+        <field name="group_id" ref="group_school_teacher"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+    <record id="access_school_fee_installment_manager" model="ir.model.access">
+        <field name="name">school.fee.installment.manager</field>
+        <field name="model_id" ref="model_school_fee_installment"/>
+        <field name="group_id" ref="group_school_manager"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
+
+    <record id="rule_school_fee_installment_company" model="ir.rule">
+        <field name="name">School Fee Installment: multi-company</field>
+        <field name="model_id" ref="model_school_fee_installment"/>
+        <field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+    </record>
+</odoo>

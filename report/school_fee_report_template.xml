@@ -75,17 +75,34 @@
                                     </thead>
                                     <tbody>
                                         <tr>
-                                            <td><t t-esc="o.fee_structure_id.name if o.fee_structure_id else 'General Fee'"/></td>
+                                            <td>
+                                                <t t-esc="o.fee_structure_id.name if o.fee_structure_id else 'General Fee'"/>
+                                                <t t-if="o.installment_id">
+                                                    <br/><small>Period: <t t-esc="o.installment_id.name"/></small>
+                                                </t>
+                                            </td>
                                             <td><t t-esc="dict(o.fee_structure_id._fields['fee_type'].selection).get(o.fee_structure_id.fee_type, '') if o.fee_structure_id and o.fee_structure_id.fee_type else ''"/></td>
                                             <td class="text-end">
                                                 <t t-esc="o.currency_id.symbol or ''"/>
-                                                <t t-esc="'{:,.2f}'.format(o.amount)"/>
+                                                <t t-esc="'{:,.2f}'.format(o.fee_amount or o.amount)"/>
                                             </td>
                                         </tr>
+                                        <t t-if="o.discount">
+                                            <tr>
+                                                <td colspan="2" class="text-end">Discount</td>
+                                                <td class="text-end">
+                                                    - <t t-esc="o.currency_id.symbol or ''"/>
+                                                    <t t-esc="'{:,.2f}'.format(o.discount)"/>
+                                                </td>
+                                            </tr>
+                                        </t>
                                     </tbody>
                                     <tfoot class="table-secondary">
                                         <tr>
-                                            <td colspan="2" class="fw-bold text-end">Total Amount</td>
+                                            <td colspan="2" class="fw-bold text-end">
+                                                <t t-if="o.discount">Net Amount</t>
+                                                <t t-else="">Total Amount</t>
+                                            </td>
                                             <td class="fw-bold text-end">
                                                 <t t-esc="o.currency_id.symbol or ''"/>
                                                 <t t-esc="'{:,.2f}'.format(o.amount)"/>

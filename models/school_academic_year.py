@@ -18,8 +18,6 @@ class SchoolAcademicYear(models.Model):
     ], string='Status', default='draft')
     active = fields.Boolean(default=True)
 
-    _name_uniq = models.Constraint('UNIQUE(name)', 'Academic year name must be unique!')
-
     @api.constrains('date_start', 'date_end')
     def _check_dates(self):
         for record in self:
